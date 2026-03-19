@@ -1,0 +1,104 @@
+#! /opt/Nuke14.1v8/libnuke-14.1.8.so -nx
+version 14.1 v8
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="0" y="32" w="2560" h="1387" maximized="1" screen="0">
+        <splitter orientation="1">
+            <split size="40"/>
+            <dock id="" hideTitles="1" activePageId="Toolbar.1">
+                <page id="Toolbar.1"/>
+            </dock>
+            <split size="1897" stretch="1"/>
+            <splitter orientation="2">
+                <split size="789"/>
+                <dock id="" activePageId="Viewer.1">
+                    <page id="Viewer.1"/>
+                </dock>
+                <split size="555"/>
+                <dock id="" activePageId="DAG.1" focus="true">
+                    <page id="DAG.1"/>
+                    <page id="Curve Editor.1"/>
+                    <page id="DopeSheet.1"/>
+                </dock>
+            </splitter>
+            <split size="615"/>
+            <dock id="" activePageId="Properties.1">
+                <page id="Properties.1"/>
+                <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+                <page id="Scenegraph.1"/>
+            </dock>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name /home/pm/Documents/MLrunner/ImageToolNEW.nk
+ format "2048 1556 0 0 2048 1556 1 2K_Super_35(full-ap)"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement Nuke
+ workingSpaceLUT linear
+ monitorLut sRGB
+ monitorOutLUT rec709
+ int8Lut sRGB
+ int16Lut sRGB
+ logLut Cineon
+ floatLut linear
+}
+Constant {
+ inputs 0
+ channels rgb
+ name Constant1
+ xpos -57
+ ypos -218
+}
+Reformat {
+ type "to box"
+ box_width 3
+ box_height 3
+ box_fixed true
+ name Reformat1
+ xpos -57
+ ypos -146
+}
+BlinkScript {
+ recompileCount 4
+ ProgramGroup 1
+ KernelDescription "3 \"PixelGrid3x3\" iterate componentWise 84afe8d5e23ac9b264aede2dc3cbb322c90f6d3e375db3cb1fe61a2bf9deb9d3 2 \"src\" Read Point \"dst\" Write Point 9 \"Row0 Col0\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row0 Col1\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row0 Col2\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row1 Col0\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row1 Col1\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row1 Col2\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row2 Col0\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row2 Col1\" Float 4 AAAAAAAAAAAAAAAAAACAPw== \"Row2 Col2\" Float 4 AAAAAAAAAAAAAAAAAACAPw== 9 \"p00\" 4 1 Default \"p01\" 4 1 Default \"p02\" 4 1 Default \"p10\" 4 1 Default \"p11\" 4 1 Default \"p12\" 4 1 Default \"p20\" 4 1 Default \"p21\" 4 1 Default \"p22\" 4 1 Default 0"
+ kernelSource "/// PixelGrid3x3: A 3x3 pixel grid where each pixel RGBA is user-definable.\n/// Connect a 3x3 Constant to the src input to set the output resolution.\nkernel PixelGrid3x3 : ImageComputationKernel<eComponentWise> \{\n  Image<eRead, eAccessPoint> src;   // format reference only\n  Image<eWrite, eAccessPoint> dst;\n\n  param:\n    float4 p00; float4 p01; float4 p02;\n    float4 p10; float4 p11; float4 p12;\n    float4 p20; float4 p21; float4 p22;\n\n  void define() \{\n    defineParam(p00, \"Row0 Col0\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n    defineParam(p01, \"Row0 Col1\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n    defineParam(p02, \"Row0 Col2\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n\n    defineParam(p10, \"Row1 Col0\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n    defineParam(p11, \"Row1 Col1\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n    defineParam(p12, \"Row1 Col2\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n\n    defineParam(p20, \"Row2 Col0\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n    defineParam(p21, \"Row2 Col1\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n    defineParam(p22, \"Row2 Col2\", float4(0.0f, 0.0f, 0.0f, 1.0f));\n  \}\n\n  float4 getPixel(int row, int col) \{\n    if (row == 0) \{\n      if (col == 0) return p00; if (col == 1) return p01; if (col == 2) return p02;\n    \}\n    if (row == 1) \{\n      if (col == 0) return p10; if (col == 1) return p11; if (col == 2) return p12;\n    \}\n    if (row == 2) \{\n      if (col == 0) return p20; if (col == 1) return p21; if (col == 2) return p22;\n    \}\n    return float4(0.0f, 0.0f, 0.0f, 0.0f);\n  \}\n\n  void process(int3 pos) \{\n    float4 colour = getPixel(pos.y, pos.x);\n\n    const int c = pos.z;\n    if (c == 0) dst() = colour.x;\n    else if (c == 1) dst() = colour.y;\n    else if (c == 2) dst() = colour.z;\n    else if (c == 3) dst() = colour.w;\n    else dst() = 0.0f;\n  \}\n\};"
+ rebuild ""
+ "PixelGrid3x3_Row0 Col0" {0.25 0.25 0.25 1}
+ "PixelGrid3x3_Row0 Col1" {0 0 0 0}
+ "PixelGrid3x3_Row0 Col2" {0 0 0 0}
+ "PixelGrid3x3_Row1 Col0" {0 0 0 0}
+ "PixelGrid3x3_Row1 Col1" {0 0 0 0}
+ "PixelGrid3x3_Row1 Col2" {0 0 0 0}
+ "PixelGrid3x3_Row2 Col0" {0 0 0 0}
+ "PixelGrid3x3_Row2 Col1" {0 0 0 0}
+ "PixelGrid3x3_Row2 Col2" {0.75 0.75 0.75 1}
+ rebuild_finalise ""
+ name BlinkScript1
+ xpos -57
+ ypos -102
+}
+Premult {
+ name Premult1
+ xpos -57
+ ypos -47
+}
+ImageTool {
+ alpha_only true
+ name ImageTool1
+ xpos -57
+ ypos 16
+}
+Viewer {
+ frame_range 1-100
+ colour_sample_bbox {-0.3333333433 -0.3333333433 0.3333333433 0.3333333433}
+ monitorOutNDISenderName "Nuke - ImageToolNEW - Viewer1"
+ monitorOutOutputTransform rec709
+ name Viewer1
+ xpos -57
+ ypos 237
+}
